@@ -80,7 +80,6 @@
             accent-color: var(--accent);
         }
 
-        /* Estilos específicos para la vista de informe */
         .report-item {
             margin-bottom: 30px;
             padding: 20px;
@@ -189,13 +188,13 @@
         <div id="results-summary"></div>
         <div id="report-container"></div>
         <div class="btn-container">
-            <button type="button" onclick="reiniciarTest()">Repetir Test</button>
+            <button type="button" onclick="iniciarTest()">Repetir Test (Aleatorio)</button>
         </div>
     </div>
 </div>
 
 <script>
-    const quizData = [
+    const quizDataOriginal = [
         {
             pregunta: "¿En qué estado de temperatura debe encontrarse el neumático para verificar y ajustar correctamente la presión según el manual del fabricante?",
             opciones: [
@@ -204,7 +203,7 @@
                 "Con el neumático recién parado tras rodar 100 km por autopista.",
                 "A una temperatura de trabajo exactamente de 50 °C."
             ],
-            correcta: 1,
+            correctaTexto: "En frío (antes de iniciar la marcha o tras haber rodado muy pocos kilómetros).",
             justificacion: "La presión correcta se mide obligatoriamente en frío porque al rodar el aire se calienta y se expande artificialmente. Si ajustas en caliente, al enfriarse el neumático quedará desinflado."
         },
         {
@@ -215,19 +214,19 @@
                 "Únicamente cuando salte el aviso de avería en el cuadro de instrumentos.",
                 "Cada 50.000 kilómetros recorridos."
             ],
-            correcta: 0,
+            correctaTexto: "Cada dos semanas y, como mínimo, una vez al mes (además de antes de viajes largos).",
             justificacion: "Los neumáticos pierden presión de manera natural con el paso de los días (microfugas). Comprobarlo al menos una vez al mes previene desgastes irregulares y consumo excessivo."
         },
         {
-            pregunta: "Si un cliente decides sustituir únicamente DOS neumáticos de un vehículo (un solo eje), ¿dónde se deben montar obligatoriamente los neumáticos nuevos?",
+            pregunta: "Si un cliente decide sustituir únicamente DOS neumáticos de un vehículo (un solo eje), ¿dónde se deben montar obligatoriamente los neumáticos nuevos?",
             opciones: [
                 "En el eje delantero, porque lleva la dirección y la tracción principal.",
                 "Indiferentemente en cualquier rueda mientras se equilibren.",
                 "En el eje trasero, para evitar que el vehículo patine de atrás y sufra sobreviraje difícil de controlar.",
                 "En el lado derecho del vehículo para compensar la inclinación de la calzada."
             ],
-            correcta: 2,
-            justificacion: "Por seguridad vial, los neumáticos nuevos siempre van al eje trasero para asegurar la estabilidad direccional y evitar derrapes traseros repentinos (sobreviraje), que son los más peligrosos y difíciles de corregir para un conductor medio."
+            correctaTexto: "En el eje trasero, para evitar que el vehículo patine de atrás y sufra sobreviraje difícil de controlar.",
+            justificacion: "Por seguridad vial, los neumáticos nuevos siempre va al eje trasero para asegurar la estabilidad direccional y evitar derrapes traseros repentinos (sobreviraje)."
         },
         {
             pregunta: "¿Por qué está expresamente PROHIBIDO desinflar un neumático que se encuentra caliente?",
@@ -237,7 +236,7 @@
                 "Porque se corre el riesgo de quemar la boquilla del manómetro.",
                 "Porque se degrada de forma instantánea el sensor TPMS."
             ],
-            correcta: 1,
+            correctaTexto: "Porque la elevación de presión es un efecto natural del calor y al enfriarse quedaría con una presión peligrosamente baja.",
             justificacion: "El incremento de presión en caliente es físico y esperado debido a la temperatura de rodadura. Si lo quitas, al enfriarse el coche rodará con una presión muy inferior a la segura."
         },
         {
@@ -248,7 +247,7 @@
                 "Porque la espuma del kit aumenta la potencia del motor eléctrico.",
                 "Porque el hueco de la rueda de repuesto está ocupado por las baterías o el depósito de gas GLP."
             ],
-            correcta: 3,
+            correctaTexto: "Porque el hueco de la rueda de repuesto está ocupado por las baterías o el depósito de gas GLP.",
             justificacion: "Los componentes adicionales de las baterías híbridas o los tanques de gas ocupan el espacio físico inferior (maletero/foso), obligando a prescindir de la rueda de repuesto convencional."
         },
         {
@@ -259,8 +258,8 @@
                 "Se dobla o deforma permanentemente el saliente del talón del neumático rompiendo el aro del talón.",
                 "Se funde el aluminio de la llanta por fricción."
             ],
-            correcta: 2,
-            justificacion: "La garganta de la llanta permite dar holgura al perímetro del neumático. Si no se introduce el talón en ella, al hacer palanca se somete al aro metálico interior del talón a una tensión extrema que lo rompe o deforma."
+            correctaTexto: "Se dobla o deforma permanentemente el saliente del talón del neumático rompiendo el aro del talón.",
+            justificacion: "La garganta de la llanta permite dar holgura al perímetro del neumático. Si no se introduce el talón en ella, al hacer palanca se rompe el aro metálico."
         },
         {
             pregunta: "En vehículos de competición o que superan los 209 km/h de velocidad, ¿qué válvulas son altamente recomendadas?",
@@ -270,8 +269,8 @@
                 "Válvulas de caucho cortas de 22 mm.",
                 "Válvulas de plástico flexible Snap-In."
             ],
-            correcta: 0,
-            justificacion: "A altas velocidades, la fuerza centrífuga dobla las válvulas de goma convencionales provocando pérdidas de aire. Las válvulas metálicas roscadas soportan cargas extremas sin deformarse."
+            correctaTexto: "Válvulas metálicas para alta presión ('HP Metal Clamp-in').",
+            justificacion: "A altas velocidades, la fuerza centrífuga dobla las válvulas de goma. Las válvulas metálicas roscadas soportan cargas extremas sin deformarse."
         },
         {
             pregunta: "Para poder extraer el talón con la palanca sobre el cabezal sin forzar la goma, ¿qué maniobra manual se debe realizar en el lado opuesto?",
@@ -281,8 +280,8 @@
                 "Tirar del neumático hacia arriba con dos alicates de presión.",
                 "Introducir manualmente el neumático en la garganta de la llanta en el lado opuesto al cabezal."
             ],
-            correcta: 3,
-            justificacion: "Al meter el talón opuesto en el canal o garganta de la llanta, el diámetro efectivo disminuye, liberando la tensión necesaria para que el otro extremo suba con suavidad sobre el cabezal."
+            correctaTexto: "Introducir manualmente el neumático en la garganta de la llanta en el lado opuesto al cabezal.",
+            justificacion: "Al meter el talón opuesto en el canal o garganta de la llanta, el diámetro efectivo disminuye, liberando la tensión necesaria para extraerlo."
         },
         {
             pregunta: "¿Qué representa la constante 'H2' en una nomenclatura como '6J x 15 H2 ET43'?",
@@ -292,8 +291,8 @@
                 "Un perfil de pestaña reforzado tipo Heavy Duty.",
                 "Un resalte interior de tipo double hump (doble joroba)."
             ],
-            correcta: 3,
-            justificacion: "'H2' indica que la llanta posee un relieve de retención (hump) en ambas caras (doble joroba) para impedir que el talón del neumático tubeless destalone en curvas cerradas."
+            correctaTexto: "Un resalte interior de tipo double hump (doble joroba).",
+            justificacion: "'H2' indica que la llanta posee un relieve de retención en ambas caras para impedir que el talón destalone en curvas cerradas."
         },
         {
             pregunta: "Si sustituimos una llanta original por otra con un ET menor (por ejemplo de ET43 a ET30), ¿qué ocurre con la posición de la rueda en el paso de rueda?",
@@ -303,8 +302,8 @@
                 "La rueda no cambia de posición lateral, solo cambia el diámetro del buje.",
                 "Se reduce automáticamente la altura libre al suelo de la carrocería."
             ],
-            correcta: 0,
-            justificacion: "Un ET menor desplaza el plano de apoyo de la llanta hacia adentro del buje, haciendo que el conjunto de la rueda sobresalga hacia el exterior de la aleta del coche."
+            correctaTexto: "La rueda sobresale más hacia el exterior del vehículo, aumentando el ancho de vías.",
+            justificacion: "Un ET menor desplaza el plano de apoyo de la llanta hacia adentro, haciendo que el conjunto de la rueda sobresalga hacia el exterior."
         },
         {
             pregunta: "Durante el proceso de giro del plato para montar el talón superior, si notas que el talón no entra en la garganta y queda sujeto a una elevada tensión, ¿qué debes hacer?",
@@ -314,8 +313,8 @@
                 "Golpear el flanco con un mazo de hierro pesado.",
                 "Retroceder invirtiendo el sentido de giro del plato giratorio para evitar problemas y comenzar de nuevo la maniobra."
             ],
-            correcta: 3,
-            justificacion: "Forzar la máquina con tensión excesiva rompe la ceja del neumático o daña la herramienta. Lo correcto es invertir el giro, recolocar el talón en la garganta y reintentar."
+            correctaTexto: "Retroceder invirtiendo el sentido de giro del plato giratorio para evitar problemas y comenzar de nuevo la maniobra.",
+            justificacion: "Forzar la máquina con tensión excesiva rompe la ceja del neumático. Lo correcto es invertir el giro y recolocarlo."
         },
         {
             pregunta: "¿Por qué motivo las válvulas verticales utilizadas a velocidades elevadas son más propensas a perder aire?",
@@ -325,8 +324,8 @@
                 "Porque sufren mayor condensación de humedad en su interior.",
                 "Porque el flujo de aire exterior desenrosca el tapón de plástico."
             ],
-            correcta: 0,
-            justificacion: "La inercia y fuerza centrífuga en válvulas mal diseñadas o muy pesadas actúan sobre el muelle interno del obús, abriéndolo de forma parásita a alta velocidad."
+            correctaTexto: "Debido a que la fuerza centrífuga del giro y del movimiento vertical asociado al sistema de suspensión afecta al centro (obús) de la válvula abriéndolo ligeramente.",
+            justificacion: "La inercia y fuerza centrífuga actúan sobre el muelle interno del obús, abriéndolo de forma parásita a alta velocidad."
         },
         {
             pregunta: "¿Qué propiedad térmica ventajosa destacan las llantas de aleación ligera respecto a las de acero?",
@@ -336,8 +335,8 @@
                 "Mantienen la temperatura del aire interior siempre a 0 °C.",
                 "Aíslan térmicamente el neumático para que no se caliente en autopista."
             ],
-            correcta: 1,
-            justificacion: "El aluminio y sus aleaciones disipan con muchísima más rapidez el calor acumulado en el sistema de frenado (discos y pastillas) en comparación con las llantas de chapa de acero."
+            correctaTexto: "Tienen muy buena conductividad térmica para evacuar el calor de los frenos.",
+            justificacion: "El aluminio y sus aleaciones disipan con rapidez el calor acumulado en los frenos."
         },
         {
             pregunta: "¿Qué función práctica cumple la garganta de la llanta durante los trabajos de desmontaje?",
@@ -347,8 +346,8 @@
                 "Recibir el exceso de grasa o pasta de montaje sobrante.",
                 "Facilitar la introducción del talón del neumático en el punto opuesto para permitir estirarlo sobre la pestaña."
             ],
-            correcta: 3,
-            justificacion: "El canal central o garganta reduce el perímetro efectivo de trabajo, cediendo el espacio necesario para liberar la tensión de la cubierta."
+            correctaTexto: "Facilitar la introducción del talón del neumático en el punto opuesto para permitir estirarlo sobre la pestaña.",
+            justificacion: "El canal central reduce el perímetro efectivo de trabajo, cediendo espacio para liberar la tensión."
         },
         {
             pregunta: "¿Dónde se puede localizar habitualmente la pegatina informativa de presiones recomendadas en un automóvil de turismo?",
@@ -358,8 +357,8 @@
                 "En el cárter del motor o en la carcasa de la caja de cambios.",
                 "En la cara interna de la cubierta del filtro de aire del motor."
             ],
-            correcta: 1,
-            justificacion: "Por normativa y diseño de fábrica, los fabricantes ubican esta etiqueta adhesiva en el marco de la puerta del conductor (pilar B) o en el interior de la tapa de combustible."
+            correctaTexto: "En el pilar B (lado conductor/acompañante), puerta del conductor o tapa del depósito de combustible.",
+            justificacion: "Por normativa se ubica en el marco de la puerta del conductor o tapa del depósito."
         },
         {
             pregunta: "En la nomenclatura de una llanta '6J x 15 H2 ET43', ¿qué indica el número '6'?",
@@ -369,19 +368,19 @@
                 "El bombeo o profundidad de encaje en milímetros.",
                 "La anchura de la llanta expresada en pulgadas."
             ],
-            correcta: 3,
-            justificacion: "El primer número de la designación dimensional de una llanta corresponde siempre a la anchura interior entre pestañas medida en pulgadas."
+            correctaTexto: "La anchura de la llanta expresada en pulgadas.",
+            justificacion: "El primer número corresponde siempre a la anchura interior entre pestañas en pulgadas."
         },
         {
             pregunta: "¿Cuál es una de las principales ventajas técnicas de utilizar nitrógeno seco para el inflado de neumáticos en automoción?",
             opciones: [
-                "Aumentar la velocidad máxima del vehículo en un 10 %.",
+                "Aumenta la velocidad máxima del vehículo en un 10 %.",
                 "Hace que la goma del neumático se vuelva completamente rígida e indeformable.",
                 "Permite eliminar la necesidad de llevar tapón en la válvula.",
                 "Carece de humedad, lo que evita la oxidación de la llanta y de las lonas metálicas interiores del neumático."
             ],
-            correcta: 3,
-            justificacion: "Al no contener vapor de agua (a diferencia del aire comprimido atmosférico), se erradica la corrosión interna en llantas de acero y lonas metálicas."
+            correctaTexto: "Carece de humedad, lo que evita la oxidación de la llanta y de las lonas metálicas interiores del neumático.",
+            justificacion: "Al no contener vapor de agua, se erradica la corrosión interna."
         },
         {
             pregunta: "Si se va a realizar un viaje por autopista con trayectos rectilíneos de más de 2 horas de duración, ¿qué corrección de presión es adecuada?",
@@ -391,8 +390,8 @@
                 "Aumentar 0,3 bares la presión recomendada.",
                 "Reducir 0,2 bares para evitar sobrecalentamiento."
             ],
-            correcta: 2,
-            justificacion: "Para circular sostenidamente a alta velocidad con carga, se recomienda incrementar ligeramente la presión (aprox. 0,3 bar) para evitar la flexión excesiva del flanco y el consiguiente sobrecalentamiento."
+            correctaTexto: "Aumentar 0,3 bares la presión recomendada.",
+            justificacion: "Para alta velocidad con carga se incrementa ligeramente la presión (aprox. 0,3 bar) para evitar la flexión excesiva del flanco."
         },
         {
             pregunta: "¿Qué indica la sigla 'ET43' o 'ET' en el marcaje de la llanta?",
@@ -402,8 +401,8 @@
                 "El diámetro interior del buje en milímetros.",
                 "El número de tornillos y la distancia entre ejes."
             ],
-            correcta: 0,
-            justificacion: "'ET' (Einpresstiefe en alemán) denota la distancia en milímetros entre el plano central de la llanta y la superficie de asiento sobre el buje."
+            correctaTexto: "El desplazamiento o bombeo (profundidad de encaje) en milímetros.",
+            justificacion: "'ET' denota la distancia entre el plano central de la llanta y la superficie de asiento sobre el buje."
         },
         {
             pregunta: "Si un cliente llega al taller con los neumáticos CALIENTES y debes comprobar la presión, ¿cuánto debes incrementar respecto a la especificación en frío?",
@@ -413,8 +412,8 @@
                 "Se debe desinflar hasta alcanzar la cifra nominal de la pegatina.",
                 "No se debe modificar la cifra de la etiqueta."
             ],
-            correcta: 1,
-            justificacion: "Si es indispensable comprobarlos en caliente, se estima un incremento operativo sumando 0,3 bar al valor en frío indicado por el fabricante, recordando revisar de nuevo en frío posteriormente."
+            correctaTexto: "Se deben sumar 0,3 bares a la presión recomendada en frío.",
+            justificacion: "Si es indispensable comprobarlos en caliente, se suma 0,3 bar al valor en frío indicado."
         },
         {
             pregunta: "¿Cuál es el límite legal mínimo de profundidad del dibujo de la banda de rodadura para sustituir un neumático de turismo?",
@@ -424,8 +423,8 @@
                 "1,6 mm (o lo que marquen los testigos de desgaste).",
                 "0,8 mm."
             ],
-            correcta: 2,
-            justificacion: "El Código de Circulación e ITV establecen en 1,6 mm el límite legal obligatorio de profundidad en los canales principales de la banda de rodadura."
+            correctaTexto: "1,6 mm (o lo que marquen los testigos de desgaste).",
+            justificacion: "El Código de Circulación establece en 1,6 mm el límite legal obligatorio."
         },
         {
             pregunta: "Una vez que el talón del neumático ha encajado con el estallido durante el inflado y no se supera la presión de asentamiento máxima (3,5 bar), ¿cuál es el paso final indispensable antes de entregar la rueda?",
@@ -435,8 +434,8 @@
                 "Lavar la banda de rodadura con grasa de litio.",
                 "Apretar la válvula con alicates universales hasta deformarla."
             ],
-            correcta: 1,
-            justificacion: "La presión de asiento es alta para que la goma encaje, pero debe regularse de inmediato al valor nominal especificado por el fabricante para el uso cotidiano del vehículo."
+            correctaTexto: "Verificar visualmente el ajuste perimetral del talón a la pestaña y ajustar la presión de inflado al valor frío especificado por el fabricante.",
+            justificacion: "La presión de asiento es alta para que encaje, pero debe regularse de inmediato al valor nominal."
         },
         {
             pregunta: "¿Qué letra identifica habitualmente el perfil de la pestaña de la llanta diseñado para automóviles de turismo?",
@@ -446,8 +445,8 @@
                 "A.",
                 "J."
             ],
-            correcta: 3,
-            justificacion: "La letra 'J' es el código estandarizado internacionalmente para designar la geometría de pestaña de llanta empleada en turismos modernos."
+            correctaTexto: "J.",
+            justificacion: "La letra 'J' es el código estandarizado para la geometría de pestaña de turismos."
         },
         {
             pregunta: "¿Qué consecuencia directa en el vehículo tiene modificar la profundidad de encaje (ET) al sustituir las llantas?",
@@ -457,8 +456,8 @@
                 "Se invalida la función del sensor TPMS.",
                 "Se modifica la relación de transmisión final del cambio."
             ],
-            correcta: 0,
-            justificacion: "Al variar el ET, las ruedas se desplazan hacia afuera o hacia adentro, modificando directamente la distancia entre centros de rueda del mismo eje (ancho de vías)."
+            correctaTexto: "Se altera el ancho de vías del vehículo.",
+            justificacion: "Al variar el ET, se modifica la distancia entre centros de rueda del mismo eje."
         },
         {
             pregunta: "¿A qué valor debe ajustarse la presión de inflado de la rueda de repuesto del vehículo?",
@@ -468,8 +467,8 @@
                 "A exactamente 1,0 bar por seguridad durante el almacenamiento.",
                 "A la presión más elevada especificada para las ruedas del vehículo en frío."
             ],
-            correcta: 3,
-            justificacion: "La rueda de repuesto debe llevar siempre la presión más alta recomendada por el fabricante (normalmente la de plena carga o eje trasero cargado), ya que es más fácil desinflar in situ que inflarla sin medios."
+            correctaTexto: "A la presión más elevada especificada para las ruedas del vehículo en frío.",
+            justificacion: "Debe llevar siempre la presión más alta recomendada por el fabricante."
         },
         {
             pregunta: "¿Cuál es la presión máxima de inflado en frío permitida para las válvulas de caucho convencionales ('Tubeless Rubber Snap-In')?",
@@ -479,8 +478,8 @@
                 "6,89 bares.",
                 "13,79 bares."
             ],
-            correcta: 0,
-            justificacion: "Las normas técnicas internacionales limitan el uso de válvulas de caucho a presión estándar hasta los 4,27 bar (65 psi); por encima de eso se exigen válvulas metálicas."
+            correctaTexto: "4,27 bares.",
+            justificacion: "Las normas limitan el uso de válvulas de caucho estándar hasta los 4,27 bar (65 psi)."
         },
         {
             pregunta: "En el marcaje '6J x 15 H2 ET43', ¿qué significado tiene la letra 'J'?",
@@ -490,8 +489,8 @@
                 "Indica que la llanta es exclusivamente para vehículos industriales.",
                 "Representa el perfil de la pestaña para automóviles de turismo."
             ],
-            correcta: 3,
-            justificacion: "En dicha designación, la 'J' especifica el contorno y forma concreta de la pestaña exterior de apoyo."
+            correctaTexto: "Representa el perfil de la pestaña para automóviles de turismo.",
+            justificacion: "La 'J' especifica el contorno y forma de la pestaña exterior de apoyo."
         },
         {
             pregunta: "¿Cuál es el valor LÍMITE ABSOLUTO de presión de asentamiento que NUNCA se debe superar durante la maniobra de inflado de encajado del neumático por seguridad?",
@@ -501,8 +500,8 @@
                 "3,5 bares.",
                 "2,0 bares."
             ],
-            correcta: 2,
-            justificacion: "Superar los 3,5 bares (50 psi) durante el talonado representa un riesgo gravísimo de explosión y rotura catastrófica de la cubierta o llanta."
+            correctaTexto: "3,5 bares.",
+            justificacion: "Superar los 3,5 bares durante el talonado representa un riesgo grave de explosión."
         },
         {
             pregunta: "Si un operario monta un neumático en seco (sin aplicar pasta de montaje), ¿qué fallo grave de taller se produce con alta probabilidad?",
@@ -512,8 +511,8 @@
                 "La máquina equilibradora no reconoce el tamaño de la rueda.",
                 "Rotura o pellizco del talón por fricción excesiva, y mal asentamiento provocando vibraciones e impermeabilidad deficiente."
             ],
-            correcta: 3,
-            justificacion: "La pasta lubrica temporalmente para permitir que el talón deslice y acople sin fricción destructiva sobre la pestaña metálica."
+            correctaTexto: "Rotura o pellizco del talón por fricción excesiva, y mal asentamiento provocando vibraciones e impermeabilidad deficiente.",
+            justificacion: "La pasta lubrica para permitir que el talón acople sin fricción destructiva."
         },
         {
             pregunta: "¿Cuál es la caducidad habitual que requiere el reemplazo del bote de espuma sellante de un kit antipinchazos?",
@@ -523,8 +522,8 @@
                 "Normally a los 4 años.",
                 "A los 10 años, junto con el código DOT."
             ],
-            correcta: 2,
-            justificacion: "Los componentes químicos y el látex de los botes sellantes pierden sus propiedades activas con el tiempo, exigiendo su sustitución preventiva cada 4 años aproximadamente."
+            correctaTexto: "Normally a los 4 años.",
+            justificacion: "Los componentes químicos del sellante pierden propiedades, exigiendo sustitución cada 4 años."
         },
         {
             pregunta: "¿Qué efecto negativo provoca circular con una presión de inflado excesivamente ALTA?",
@@ -534,8 +533,8 @@
                 "Mayor desgaste en los hombros del neumático.",
                 "Menor superficie de contacto, peor adherencia y deterioro acelerado de elementos de la suspensión."
             ],
-            correcta: 3,
-            justificacion: "Con exceso de aire, el neumático abomba su centro reduciendo huella de pisada, perdiendo agarre crítico en frenada/curva y transmitiendo todos los impactos secos a la suspensión."
+            correctaTexto: "Menor superficie de contacto, peor adherencia y deterioro acelerado de elementos de la suspensión.",
+            justificacion: "Con exceso de aire, se reduce la huella de pisada y se transmiten impactos secos."
         },
         {
             pregunta: "¿A qué distancia se debe ajustar el cabezal de montaje respecto a la pestaña de la llanta para evitar rayarla durante la rotación?",
@@ -545,8 +544,8 @@
                 "Ajustado a cero con la galga de espesores.",
                 "A una distancia hacia arriba y hacia fuera pequeña, de entre 2 y 3 mm."
             ],
-            correcta: 3,
-            justificacion: "Debe dejarse esa holgura milimétrica para evitar el roce directo metal-metal entre el útil y la llanta, protegiendo las llantas de aleación."
+            correctaTexto: "A una distancia hacia arriba y hacia fuera pequeña, de entre 2 y 3 mm.",
+            justificacion: "Evita el roce directo metal-metal protegiendo las llantas."
         },
         {
             pregunta: "Al instalar una válvula nueva en la llanta, ¿qué precaución geométrica básica se debe comprobar respecto al borde de la llanta?",
@@ -556,8 +555,8 @@
                 "Que la válvula quede inclinada 45 grados hacia el centro del disco.",
                 "Que la válvula montada nunca sobresalga del perfil exterior de la llanta para evitar que se corte contra los bordillos."
             ],
-            correcta: 3,
-            justificacion: "Si sobresale en exceso del plano de la llanta, cualquier roce contra el bordillo al aparcar la seccionará instantáneamente provocando un reventón."
+            correctaTexto: "Que la válvula montada nunca sobresalga del perfil exterior de la llanta para evitar que se corte contra los bordillos.",
+            justificacion: "Si sobresale en exceso, un roce contra el bordillo la seccionará."
         },
         {
             pregunta: "¿Qué función cumple la pestaña de la llanta?",
@@ -567,8 +566,8 @@
                 "Representa la corona exterior que actúa como tope lateral exterior para el talón del neumático y soporta la fuerza de inflado y carga axial.",
                 "Es el orificio central donde encaja el buje para centrar la rueda."
             ],
-            correcta: 2,
-            justificacion: "La pestaña exterior retiene mecánicamente el talón lateralmente frente a las fuerzas de empuje en curvas y la propia presión interna."
+            correctaTexto: "Representa la corona exterior que actúa como tope lateral exterior para el talón del neumático y soporta la fuerza de inflado y carga axial.",
+            justificacion: "Retiene mecánicamente el talón lateralmente frente a las fuerzas."
         },
         {
             pregunta: "¿Cuál es la limitación principal de uso del bote de espuma sellante en un kit antipinchazos?",
@@ -578,8 +577,8 @@
                 "Solo es efectiva en pinchazos en la banda de rodadura; no sirve para rajas en flancos ni reventones.",
                 "Debe aplicarse con la llanta desmontada del neumático."
             ],
-            correcta: 2,
-            justificacion: "La fuerza centrífuga solo redistribuye el sellador eficientemente en la banda de rodadura; los flancos flexibles o rajas grandes invalidan por completo el kit."
+            correctaTexto: "Solo es efectiva en pinchazos en la banda de rodadura; no sirve para rajas en flancos ni reventones.",
+            justificacion: "La fuerza centrífuga solo redistribuye el sellador en la banda de rodadura."
         },
         {
             pregunta: "Al colocar la rueda en el plato para el MONTAJE del neumático, ¿dónde debe situarse la válvula respecto al cabezal de montaje?",
@@ -589,8 +588,8 @@
                 "Girar la rueda de forma que la válvula quede ENFRENTE (distancia máxima diametralmente opuesta para evitar problemas) del cabezal de montaje.",
                 "La válvula debe quedar justo en el punzón del cabezal de montaje."
             ],
-            correcta: 2,
-            justificacion: "Situarla a 180 grados (enfrente) previene que la uña de montaje golpee o pellizque la base de la válvula al rotar la cubierta."
+            correctaTexto: "Girar la rueda de forma que la válvula quede ENFRENTE (distancia máxima diametralmente opuesta para evitar problemas) del cabezal de montaje.",
+            justificacion: "Situarla a 180 grados previene que la uña golpee la base de la válvula."
         },
         {
             pregunta: "¿Cómo se mide correctamente el diámetro de una llanta?",
@@ -600,8 +599,8 @@
                 "Desde el centro del orificio del buje hasta la pestaña exterior.",
                 "Entre las superficies de apoyo opuestas del neumático."
             ],
-            correcta: 0,
-            justificacion: "El diámetro nominal de la llanta expresado en pulgadas se corresponde con la distancia entre los asientos de los talones en las pestañas."
+            correctaTexto: "Entre las superficies exteriores de las pestañas laterales.",
+            justificacion: "El diámetro nominal se corresponde con la distancia entre los asientos de los talones."
         },
         {
             pregunta: "¿Cuál es el cometido principal del 'hump' o saliente en el contorno de la llanta tubeless?",
@@ -611,8 +610,8 @@
                 "Evitar que el talón del neumático se desplace lateralmente hacia la garganta al circular por curvas.",
                 "Servir de tope para colocar las pesas de equilibrado adhesivas."
             ],
-            correcta: 2,
-            justificacion: "En condiciones de fuerte apoyo lateral en curva, el talón tiende a colapsar hacia el centro; el hump actúa como traba de seguridad."
+            correctaTexto: "Evitar que el talón del neumático se desplace lateralmente hacia la garganta al circular por curvas.",
+            justificacion: "El hump actúa como traba de seguridad en apoyo fuerte."
         },
         {
             pregunta: "Una vez destalonada la cubierta por ambas caras, ¿qué operación de limpieza y preparación previa debe realizarse antes de amarrar la rueda al plato?",
@@ -622,8 +621,8 @@
                 "Aplicar aceite de motor sobre los talones del neumático.",
                 "Lijar la cara interior de la garganta con lija de grano grueso."
             ],
-            correcta: 0,
-            justificacion: "Quitar contrapesos viejos adhesivos o de grapa evita daños en las garras y asegura un diagnóstico de equilibrado limpio posterior."
+            correctaTexto: "Retirar todas las pesas de equilibrado usadas y eliminar la suciedad persistente.",
+            justificacion: "Quitar contrapesos viejos evita daños y asegura un buen diagnóstico."
         },
         {
             pregunta: "¿Qué indica el diámetro del círculo de tornillos en una llanta?",
@@ -633,8 +632,8 @@
                 "El diámetro de la garganta interior expresado en pulgadas.",
                 "El espesor del cubo central medido con un pie de rey."
             ],
-            correcta: 0,
-            justificacion: "El diámetro del círculo de agujeros (PCD) define métricamente la disposición geométrica de los pernos de amarre al buje."
+            correctaTexto: "El diámetro del círculo en el que se sitúan los orificios para los tornillos y la separación entre ellos.",
+            justificacion: "Define la disposición geométrica de los pernos de amarre."
         },
         {
             pregunta: "¿Cuáles son los tres factores principales de los que depende el tipo de válvula a instalar en una rueda?",
@@ -644,8 +643,8 @@
                 "El color de la llanta, el tipo de freno y el tamaño del maletero.",
                 "El diámetro del volante, la altura del coche y la potencia en caballos."
             ],
-            correcta: 0,
-            justificacion: "La selección técnica de la válvula viene condicionada por la presión de trabajo, la velocidad máxima estimada y las dimensiones/agujero de la llanta."
+            correctaTexto: "La presión de aire requerida, las condiciones de conducción y el diseño de la llanta.",
+            justificacion: "Condicionado por la presión de trabajo, velocidad y dimensiones de llanta."
         },
         {
             pregunta: "Al inspeccionar un neumático en el taller, observas un desgaste acusado en AMBOS extremos (hombros) de la banda de rodadura. ¿A qué se debe?",
@@ -655,8 +654,8 @@
                 "A haber circulado de forma prolongada con una presión de inflado insuficiente.",
                 "A un exceso continuado de presión de inflado."
             ],
-            correcta: 2,
-            justificacion: "Con baja presión, el neumático descansa su peso sobre los flancos exteriores, desgastando ambos hombros prematuramente."
+            correctaTexto: "A haber circulado de forma prolongada con una presión de inflado insuficiente.",
+            justificacion: "Con baja presión, el neumático descansa su peso sobre los flancos."
         },
         {
             pregunta: "¿En qué consiste el proceso inicial de fabricación de una llanta de aleación ligera FORJADA?",
@@ -666,8 +665,8 @@
                 "En prensar una aleación de aluminio y minerales sólida a unos 450 °C bajo varias toneladas de presión.",
                 "En verter material líquido en un molde a baja presión."
             ],
-            correcta: 2,
-            justificacion: "La forja somete a la aleación sólida a enormes presiones mecánicas térmicas, alineando su estructura cristalina para ofrecer máxima ligereza y resistencia."
+            correctaTexto: "En prensar una aleación de aluminio y minerales sólida a unos 450 °C bajo varias toneladas de presión.",
+            justificacion: "Somete a la aleación sólida a enormes presiones mecánicas alineando su estructura."
         },
         {
             pregunta: "¿Qué función cumple la pasta de montaje aplicada en los talones y pestañas de la llanta?",
@@ -677,8 +676,8 @@
                 "Sustituye la necesidad de colocar obús en la válvula.",
                 "Disuelve la suciedad de óxido transformándola en aluminio."
             ],
-            correcta: 1,
-            justificacion: "Actúa como lubricante temporal de montaje que se evapora/seca posteriormente, garantizando un acoplamiento perfecto sin fricciones."
+            correctaTexto: "Facilita el deslizamiento sin dañar la goma y asegura el correcto y uniforme asiento del talón sobre la espalda de la llanta.",
+            justificacion: "Actúa como lubricante temporal que garantiza un acoplamiento perfecto."
         },
         {
             pregunta: "Tras retirar completamente la cubierta vieja de la llanta, ¿qué debe hacerse con la válvula de caucho antigua y la llanta?",
@@ -688,8 +687,8 @@
                 "Limpiarla con disolvente y pegarla con silicona.",
                 "Recortar solo el extremo superior de la rosca."
             ],
-            correcta: 0,
-            justificacion: "Las válvulas de goma pierden elasticidad y se degradan. Deben cortarse y sustituirse obligatoriamente por una nueva en cada cambio de neumáticos."
+            correctaTexto: "Cortar la válvula por el interior y desecharla para instalar una nueva y además limpieza de la zona de apoyo con el talón del neumático.",
+            justificacion: "Las válvulas pierden elasticidad y deben sustituirse obligatoriamente."
         },
         {
             pregunta: "¿Dónde debe posicionarse la paleta de destalonar respecto a la llanta?",
@@ -699,8 +698,8 @@
                 "Apoyando directamente sobre los radios de la llanta de aleación para hacer palanca.",
                 "Directamente sobre el centro del flanco del neumático."
             ],
-            correcta: 1,
-            justificacion: "Debe acercarse al borde sin golpear el labio de aluminio/acero para empujar el talón hacia la garganta de manera limpia."
+            correctaTexto: "Lo más cerca posible de la pestaña de la llanta sin que llegue a tocar con ella, actuando varias veces en todo el perímetro.",
+            justificacion: "Debe acercarse al borde sin golpear el labio para empujar el talón."
         },
         {
             pregunta: "Antes de proceder a destalonar la cubierta con la paleta de la desmontadora, ¿cuál es el PRIMER paso práctico e imprescindible?",
@@ -710,8 +709,8 @@
                 "Aplicar pasta de montaje sobre la banda de rodadura.",
                 "Retirar la caperuza y desenroscar el obús de la válvula para vaciar todo el aire interior."
             ],
-            correcta: 3,
-            justificacion: "Intentar destalonar una rueda con presión interior es extremadamente peligroso debido a la energía almacenada."
+            correctaTexto: "Retirar la caperuza y desenroscar el obús de la válvula para vaciar todo el aire interior.",
+            justificacion: "Destalonar con presión interior es peligroso debido a la energía almacenada."
         },
         {
             pregunta: "¿Qué anomalía indica un desgaste irregular presente en UN SOLO lateral del neumático?",
@@ -721,8 +720,8 @@
                 "Presión de inflado demasiado alta.",
                 "Alineación incorrecta de la dirección."
             ],
-            correcta: 3,
-            justificacion: "Un desajuste en las cotas de convergencia, divergencia o caída (cámber) provoca que el neumático pise apoyado en un solo canto."
+            correctaTexto: "Alineación incorrecta de la dirección.",
+            justificacion: "Un desajuste en convergencia, divergencia o caída provoca pisada apoyada en un solo canto."
         },
         {
             pregunta: "¿Qué mantenimiento clave requiere la red de aire comprimido del taller para garantizar un inflado correcto y seguro?",
@@ -732,8 +731,8 @@
                 "Elevar la presión de red a más de 15 bares continuamente.",
                 "Llenar las conducciones con aceite anticorrosivo una vez al mes."
             ],
-            correcta: 0,
-            justificacion: "Los purgadores y filtros deshidratadores evitan que el agua condensada en el compresor pase al interior del neumático."
+            correctaTexto: "Mantener en correcto estado el filtro deshidratador para evitar introducir agua/humedad en la rueda.",
+            justificacion: "Evitan que el agua condensada pase al interior del neumático."
         },
         {
             pregunta: "Respecto a la compatibilidad entre el perfil de la pestaña de la llanta y el neumático, ¿qué norma es de obligado cumplimiento?",
@@ -743,8 +742,8 @@
                 "Solo se permite la incompatibilidad si se utiliza cámara interior.",
                 "Está prohibido montar en una llanta un neumático cuyo perfil de pestaña sea incompatible (ej. perfil J en perfil B)."
             ],
-            correcta: 3,
-            justificacion: "Las tolerancias y formas de asiento de talón son específicas; mezclar perfiles rompe la estanqueidad y seguridad del conjunto."
+            correctaTexto: "Está prohibido montar en una llanta un neumático cuyo perfil de pestaña sea incompatible (ej. perfil J en perfil B).",
+            justificacion: "Mezclar perfiles rompe la estanqueidad y seguridad del conjunto."
         },
         {
             pregunta: "¿Qué función cumple la herramienta especial para válvulas durante el inicio del desmontaje?",
@@ -754,8 +753,8 @@
                 "Desenroscar el obús de la válvula para liberar de forma rápida y completa el aire retenido.",
                 "Extraer la válvula tirando con fuerza de la palanca de destalonar."
             ],
-            correcta: 2,
-            justificacion: "El destornillador/llave de obús extrae el núcleo roscado interior para agilizar la evacuación total del aire."
+            correctaTexto: "Desenroscar el obús de la válvula para liberar de forma rápida y completa el aire retenido.",
+            justificacion: "Extrae el núcleo roscado para agilizar la evacuación total del aire."
         },
         {
             pregunta: "¿Con qué frecuencia se deben reemplazar las válvulas de caucho en el taller?",
@@ -765,8 +764,8 @@
                 "Únicamente cuando se observe una fuga evidente por la base.",
                 "Nunca, las válvulas de caucho duran toda la vida útil del vehículo."
             ],
-            correcta: 0,
-            justificacion: "Por protocolo de seguridad y durabilidad del caucho frente a agentes externos, se cambian siempre de forma conjunta con la cubierta."
+            correctaTexto: "Cada vez que se sustituyen los neumáticos por unos nuevos.",
+            justificacion: "Se cambian de forma conjunta por protocolo de seguridad."
         },
         {
             pregunta: "¿Se permite legalmente sustituir un único neumático en un mismo eje cuando está gastado?",
@@ -776,8 +775,8 @@
                 "Depende de si el coche es de tracción delantera o trasera.",
                 "Sí, siempre que sea de la misma marca y medida."
             ],
-            correcta: 1,
-            justificacion: "La normativa técnica exige simetría absoluta de desgaste y comportamiento en un mismo eje, prohibiendo cambiar uno solo."
+            correctaTexto: "No, los neumáticos deben sustituirse siempre por parejas en el mismo eje.",
+            justificacion: "La normativa técnica exige simetría de comportamiento en un mismo eje."
         },
         {
             pregunta: "¿Por qué es fundamental cambiar la válvula de caucho al montar un neumático nuevo?",
@@ -787,8 +786,8 @@
                 "Porque de lo contrario no se puede equilibrar la rueda en la máquina.",
                 "Porque las válvulas viejas cambian el diámetro del orificio de la llanta."
             ],
-            correcta: 0,
-            justificacion: "El caucho sufre fatiga y cuarteamiento por los ciclos de flexión y el tiempo; mantener una válvula vieja es fuente segura de fugas lentas."
+            correctaTexto: "Porque una válvula vieja agrietada o envejecida puede perder aire y dañar el neumático nuevo.",
+            justificacion: "El caucho sufre fatiga; mantener una válvula vieja es fuente segura de fugas."
         },
         {
             pregunta: "Antes de montar una cubierta nueva en la llanta, ¿dónde se debe aplicar cuidadosamente la pasta de montaje?",
@@ -798,8 +797,8 @@
                 "Únicamente sobre el centro de la banda de rodadura.",
                 "En la parte interior y exterior de AMBOS talones del neumático, así como en las pestañas y espaldas de la llanta."
             ],
-            correcta: 3,
-            justificacion: "Toda la zona de fricción de contacto entre la goma del talón y el metal de la llanta debe lubricarse correctamente."
+            correctaTexto: "En la parte interior y exterior de AMBOS talones del neumático, así como en las pestañas y espaldas de la llanta.",
+            justificacion: "Toda la zona de fricción de contacto debe lubricarse correctamente."
         },
         {
             pregunta: "¿Por qué el nitrógeno mantiene la presión del neumático estable durante más tiempo que el aire atmosférico?",
@@ -809,8 +808,8 @@
                 "Porque sus moléculas son de mayor tamaño que las de oxígeno, reduciendo las microfugas.",
                 "Porque se petrifica al entrar en contacto con el caucho interior."
             ],
-            correcta: 2,
-            justificacion: "El tamaño molecular del nitrógeno es ligeramente mayor que el del oxígeno, lo que dificulta su filtración a través de la porosidad natural del caucho."
+            correctaTexto: "Porque sus moléculas son de mayor tamaño que las de oxígeno, reduciendo las microfugas.",
+            justificacion: "Dificulta su filtración a través de la porosidad natural del caucho."
         },
         {
             pregunta: "Al montar un neumático con dibujo direccional o asimétrico, ¿qué comprobaciones visuales son obligatorias en los flancos?",
@@ -820,8 +819,8 @@
                 "Verificar que la masa del neumático sea idéntica en ambos flancos.",
                 "Comprobar las flechas de sentido de giro o el marcaje Inside/Outside (por lo general, el marcaje DOT debe quedar hacia el exterior)."
             ],
-            correcta: 3,
-            justificacion: "Los neumáticos direccionales o asimétricos exigen respetar rigurosamente el sentido de rotación o la orientación de cara exterior/interior para evacuar agua correctamente."
+            correctaTexto: "Comprobar las flechas de sentido de giro o el marcaje Inside/Outside (por lo general, el marcaje DOT debe quedar hacia el exterior).",
+            justificacion: "Exigen respetar la orientación para evacuar el agua de forma correcta."
         },
         {
             pregunta: "¿Qué inspección debe realizarse en un neumático que ha sufrido un impacto fuerte contra un bordillo antes de volver a autorizar su uso?",
@@ -831,8 +830,8 @@
                 "Comprobar si existen deformaciones, ampollas o roturas en los flancos, talones o banda de rodadura.",
                 "Limitarse a añadir 0,5 bares de presión extra."
             ],
-            correcta: 2,
-            justificacion: "Un golpe seco rompe las lonas textiles interiores del flanco provocando un bulto (hernia), lo que conlleva riesgo inminente de reventón."
+            correctaTexto: "Comprobar si existen deformaciones, ampollas o roturas en los flancos, talones o banda de rodadura.",
+            justificacion: "Un golpe rompe las lonas interiores provocando un bulto con riesgo de reventón."
         },
         {
             pregunta: "Al introducir el talón superior del neumático en la llanta, ¿qué método práctico evita que el talón sufra una tensión excesiva que lo rompa?",
@@ -842,8 +841,8 @@
                 "Aplicar calor directo con un soplete de butano sobre el talón.",
                 "Tirar con la palanca metálica haciendo palanca en los radios de la llanta."
             ],
-            correcta: 1,
-            justificacion: "Mantener la sección ya montada alojada en la garganta inferior evita el estiramiento crítico de la estructura de alambre del talón."
+            correctaTexto: "Presionar el flanco del neumático para que la parte del talón ya montada se deslice dentro de la garganta de la llanta.",
+            justificacion: "Evita el estiramiento crítico de la estructura de alambre del talón."
         },
         {
             pregunta: "Para un vehículo comercial o camión ligero cuya presión de inflado en frío supera los 4,27 bares, ¿qué tipo de válvula de caucho se debe emplear?",
@@ -853,8 +852,8 @@
                 "No existen válvulas de caucho para esa presión, es obligatorio usar cámara.",
                 "Válvulas estándar de turismo con tapón metálico."
             ],
-            correcta: 1,
-            justificacion: "Existen variantes de caucho reforzado específicas para alta presión (etiquetadas como High Pressure) capaces de soportar los requerimientos de furgonetas."
+            correctaTexto: "Válvulas de caucho para alta presión ('Tubeless Snap-In High Pressure').",
+            justificacion: "Existen variantes de caucho reforzado específicas para alta presión en furgonetas."
         },
         {
             pregunta: "Si un neumático presenta un desgaste anormal concentrado en la PARTE CENTRAL de la banda de rodadura, ¿cuál es la causa principal?",
@@ -864,8 +863,8 @@
                 "Presión de inflado insuficiente.",
                 "Amortiguadores defectuosos en el eje delantero."
             ],
-            correcta: 1,
-            justificacion: "Al ir con exceso de aire, la banda adopta una forma convexa que concentra todo el esfuerzo de fricción exclusivamente en las estrías centrales."
+            correctaTexto: "Presión de inflado excesiva.",
+            justificacion: "Con exceso de aire, la banda adopta forma convexa concentrando la fricción en el centro."
         },
         {
             pregunta: "En la nomenclatura '7J x 16 FH ET33', ¿qué significa la sigla 'FH'?",
@@ -875,8 +874,8 @@
                 "Indica que la llanta es de forja de alta resistencia (Forged High).",
                 "Identifica el resalte de la llanta de tipo flat hump (joroba plana)."
             ],
-            correcta: 3,
-            justificacion: "'FH' responde a Flat Hump, un perfil de joroba aplanada diseñado para sujetar el talón del neumático de manera óptima."
+            correctaTexto: "Identifica el resalte de la llanta de tipo flat hump (joroba plana).",
+            justificacion: "'FH' responde a Flat Hump, un perfil de joroba aplanada."
         },
         {
             pregunta: "Al reparar un pinchazo en un neumático usado y volver a montarlo en su llanta, ¿qué tarea previa de limpieza en la cubierta y llanta es indispensable para no arruinar el equilibrado?",
@@ -886,8 +885,8 @@
                 "Retirar las piedras incrustadas en el dibujo y lavar a fondo la llanta para eliminar suciedad adherida que actúa como contrapeso.",
                 "Llenar la garganta con espuma expansiva de poliuretano."
             ],
-            correcta: 2,
-            justificacion: "Grava acumulada en las ranuras o barro seco en el canal de la llanta suman masa parásita que desbalancea el conjunto al girar en banco."
+            correctaTexto: "Retirar las piedras incrustadas en el dibujo y lavar a fondo la llanta para eliminar suciedad adherida que actúa como contrapeso.",
+            justificacion: "Grava o barro seco suman masa parásita que desbalancea el conjunto."
         },
         {
             pregunta: "¿De qué color son los tapones de las válvulas en las ruedas infladas con nitrógeno para su correcta identificación en el taller?",
@@ -897,8 +896,8 @@
                 "Color verde.",
                 "Color amarillo fluorescente."
             ],
-            correcta: 2,
-            justificacion: "El estándar internacional de talleres utiliza tapones de color verde brillante para diferenciar visualmente de un vistazo los neumáticos inflados con nitrógeno."
+            correctaTexto: "Color verde.",
+            justificacion: "El estándar de talleres utiliza tapones verdes para identificar el inflado con nitrógeno."
         },
         {
             pregunta: "¿Qué distancia física define el ancho de una llanta?",
@@ -908,36 +907,65 @@
                 "La distancia interior entre las dos pestañas de la llanta.",
                 "La distancia entre los orificios de los pernos de sujeción."
             ],
-            correcta: 2,
-            justificacion: "El ancho se mide estrictamente entre las caras internas de las dos pestañas o flanches donde asienta el neumático."
+            correctaTexto: "La distancia interior entre las dos pestañas de la llanta.",
+            justificacion: "El ancho se mide estrictamente entre las caras internas de las dos pestañas."
         }
     ];
 
-    function cargarTest() {
+    let quizDataActivo = [];
+
+    // Función para mezclar un array de forma aleatoria (Fisher-Yates)
+    function mezclarArray(array) {
+        let arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function iniciarTest() {
+        // Mezclamos las preguntas de forma aleatoria
+        quizDataActivo = mezclarArray(quizDataOriginal).map(q => {
+            return {
+                pregunta: q.pregunta,
+                opciones: mezclarArray(q.opciones), // Mezclamos también las opciones de respuesta
+                correctaTexto: q.correctaTexto,
+                justificacion: q.justificacion
+            };
+        });
+
         const container = document.getElementById("questionsContainer");
         let html = "";
-        quizData.forEach((q, index) => {
+        
+        quizDataActivo.forEach((q, index) => {
             html += `<div class="question-card" id="card-${index}">
                 <div class="question-title">${index + 1}. ${q.pregunta}</div>
                 <div class="options">`;
             q.opciones.forEach((opt, optIndex) => {
                 html += `<label>
-                    <input type="radio" name="pregunta-${index}" value="${optIndex}"> ${opt}
+                    <input type="radio" name="pregunta-${index}" value="${encodeURIComponent(opt)}"> ${opt}
                 </label>`;
             });
             html += `</div></div>`;
         });
+        
         container.innerHTML = html;
+
+        // Mostrar la vista del test y ocultar informe
+        document.getElementById("report-view").classList.add("hidden");
+        document.getElementById("quiz-view").classList.remove("hidden");
+        window.scrollTo(0, 0);
     }
 
     function corregirYMostrarInforme() {
         let aciertos = 0;
         let informeHtml = "";
 
-        quizData.forEach((q, index) => {
+        quizDataActivo.forEach((q, index) => {
             const seleccionada = document.querySelector(`input[name="pregunta-${index}"]:checked`);
-            const valorSeleccionado = seleccionada ? parseInt(seleccionada.value) : null;
-            const esAcertada = (valorSeleccionado === q.correcta);
+            const valorSeleccionado = seleccionada ? decodeURIComponent(seleccionada.value) : null;
+            const esAcertada = (valorSeleccionado === q.correctaTexto);
 
             if (esAcertada) aciertos++;
 
@@ -949,8 +977,8 @@
                 <div class="report-item ${estadoClase}">
                     <span class="status-badge ${badgeClase}">${badgeTexto}</span>
                     <div class="question-title">Pregunta ${index + 1}: ${q.pregunta}</div>
-                    <p><strong>Tu respuesta:</strong> ${valorSeleccionado !== null ? q.opciones[valorSeleccionado] : '<i>No respondida</i>'}</p>
-                    <p><strong>Respuesta correcta:</strong> ${q.opciones[q.correcta]}</p>
+                    <p><strong>Tu respuesta:</strong> ${valorSeleccionado !== null ? valorSeleccionado : '<i>No respondida</i>'}</p>
+                    <p><strong>Respuesta correcta:</strong> ${q.correctaTexto}</p>
                     <div class="justification">
                         <strong>Justificación técnica:</strong> ${q.justificacion}
                     </div>
@@ -958,24 +986,16 @@
             `;
         });
 
-        // Ocultar test y mostrar informe
         document.getElementById("quiz-view").classList.add("hidden");
         document.getElementById("report-view").classList.remove("hidden");
 
-        const porcentaje = Math.round((aciertos / quizData.length) * 100);
-        document.getElementById("results-summary").innerHTML = `Resultado final: ${aciertos} de ${quizData.length} aciertos (${porcentaje}%)`;
+        const porcentaje = Math.round((aciertos / quizDataActivo.length) * 100);
+        document.getElementById("results-summary").innerHTML = `Resultado final: ${aciertos} de ${quizDataActivo.length} aciertos (${porcentaje}%)`;
         document.getElementById("report-container").innerHTML = informeHtml;
         window.scrollTo(0, 0);
     }
 
-    function reiniciarTest() {
-        document.getElementById("report-view").classList.add("hidden");
-        document.getElementById("quiz-view").classList.remove("hidden");
-        document.getElementById("quizForm").reset();
-        window.scrollTo(0, 0);
-    }
-
-    window.onload = cargarTest;
+    window.onload = iniciarTest;
 </script>
 
 </body>
