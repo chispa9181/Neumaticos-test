@@ -49,7 +49,6 @@
             font-size: 1rem;
         }
 
-        /* Cronómetro flotante discreto */
         #cronometro {
             text-align: right;
             font-size: 0.95rem;
@@ -188,7 +187,7 @@
         <form id="quizForm">
             <div id="questionsContainer"></div>
             <div class="btn-container">
-                <button type="button" onclick="corregirYMostrarInforme()">Corregir Examen y Ver Informe</button>
+                <button type="button" onclick="solicitarNombreYCorregir()">Corregir Examen y Ver Informe</button>
             </div>
         </form>
     </div>
@@ -204,7 +203,6 @@
 </div>
 
 <script>
-    // WEBHOOK DE DISCORD YA INTEGRADO:
     const WEBHOOK_URL = 'https://discordapp.com/api/webhooks/1555340949507281087/DzvioHjB8Y_8hJTH00p7JrSi7pMuFiji-K7Jf_6xN9rt4R5gIjJTzJCT8MoUMRnTwTqc';
 
     const quizDataOriginal = [
@@ -352,7 +350,7 @@
             justificacion: "El aluminio y sus aleaciones disipan con rapidez el calor acumulado en los frenos."
         },
         {
-            pregunta: "¿Qué función práctica cumple la garganta de la llanta durante los trabajos de desmontaje?",
+            pregunta: "¿Qué función cumple la garganta de la llanta durante los trabajos de desmontaje?",
             opciones: [
                 "Aumentar la rigidez del cubo de rueda frente a impactos laterales.",
                 "Alojar los contrapesos de equilibrado de tipo clip.",
@@ -393,7 +391,7 @@
                 "Carece de humedad, lo que evita la oxidación de la llanta y de las lonas metálicas interiores del neumático."
             ],
             correctaTexto: "Carece de humedad, lo que evita la oxidación de la llanta y de las lonas metálicas interiores del neumático.",
-            justificacion: "Al não contener vapor de agua, se erradica la corrosión interna."
+            justificacion: "Al no contener vapor de agua, se erradica la corrosión interna."
         },
         {
             pregunta: "Si se va a realizar un viaje por autopista con trayectos rectilíneos de más de 2 horas de duración, ¿qué corrección de presión es adecuada?",
@@ -984,14 +982,15 @@
         iniciarCronometro();
     }
 
-    function enviarWebhookDiscord(aciertos, fallos, total, porcentaje, tiempoFormateado) {
+    function enviarWebhookDiscord(nombreUsuario, aciertos, fallos, total, porcentaje, tiempoFormateado) {
         if (!WEBHOOK_URL) return;
 
         let mensaje = {
             embeds: [{
-                title: "📊 Nuevo Test Completado (Anónimo)",
+                title: `📊 Test Completado por: ${nombreUsuario}`,
                 color: porcentaje >= 50 ? 3066993 : 15158332,
                 fields: [
+                    { name: "👤 Alumno / Usuario", value: nombreUsuario, inline: false },
                     { name: "🏆 Calificación", value: `${porcentaje}% (${aciertos}/${total})`, inline: true },
                     { name: "⏱️ Tiempo", value: tiempoFormateado, inline: true },
                     { name: "✅ Aciertos", value: `${aciertos}`, inline: true },
@@ -1008,7 +1007,21 @@
         }).catch(err => console.error("Error silencioso al enviar webhook", err));
     }
 
-    function corregirYMostrarInforme() {
+    function solicitarNombreYCorregir() {
+        let nombre = "";
+        // Bucle para obligar a introducir un nombre válido (no vacío ni cancelado)
+        while (true) {
+            nombre = prompt("Introduce tu nombre completo para ver el informe y enviar el examen:");
+            if (nombre === null) {
+                return; // Si pulsa cancelar, se sale de la función sin corregir
+            }
+            nombre = nombre.trim();
+            if (nombre !== "") {
+                break; // Nombre válido, salimos del bucle
+            }
+            alert("El nombre es obligatorio para poder entregar el examen.");
+        }
+
         clearInterval(timerInterval);
         
         let aciertos = 0;
@@ -1045,13 +1058,13 @@
         let segundos = tiempoSegundos % 60;
         let tiempoFormateado = `${minutos} min ${segundos} seg`;
 
-        // Envío oculto y automático al Webhook de Discord
-        enviarWebhookDiscord(aciertos, fallos, quizDataActivo.length, porcentaje, tiempoFormateado);
+        // Envío automático al Webhook de Discord con el nombre obligatorio
+        enviarWebhookDiscord(nombre, aciertos, fallos, quizDataActivo.length, porcentaje, tiempoFormateado);
 
         document.getElementById("quiz-view").classList.add("hidden");
         document.getElementById("report-view").classList.remove("hidden");
 
-        document.getElementById("results-summary").innerHTML = `Resultado final: ${aciertos} de ${quizDataActivo.length} aciertos (${porcentaje}%) <br><span style="font-size: 1rem; color: var(--text-muted);">Tiempo empleado: ${tiempoFormateado}</span>`;
+        document.getElementById("results-summary").innerHTML = `¡Buen trabajo, ${nombre}! <br> Resultado final: ${aciertos} de ${quizDataActivo.length} aciertos (${porcentaje}%) <br><span style="font-size: 1rem; color: var(--text-muted);">Tiempo empleado: ${tiempoFormateado}</span>`;
         document.getElementById("report-container").innerHTML = informeHtml;
         window.scrollTo(0, 0);
     }
