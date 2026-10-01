@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Informe Técnico - Test de Neumáticos y Llantas</title>
+    <title>Test Técnico: Neumáticos y Llantas</title>
     <style>
         :root {
             --bg-main: #121417;
@@ -38,15 +38,24 @@
         h1 {
             text-align: center;
             color: var(--accent);
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             font-size: 2rem;
         }
 
         .subtitle {
             text-align: center;
             color: var(--text-muted);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             font-size: 1rem;
+        }
+
+        /* Cronómetro flotante discreto */
+        #cronometro {
+            text-align: right;
+            font-size: 0.95rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+            font-weight: bold;
         }
 
         .question-card {
@@ -172,9 +181,10 @@
 <div class="container">
     <h1>Taller de Neumáticos y Llantas</h1>
     <div class="subtitle">Módulo de Evaluación Técnica y Corrección Comentada</div>
-
+    
     <!-- Vista del Test -->
     <div id="quiz-view">
+        <div id="cronometro">Tiempo transcurrido: 00:00</div>
         <form id="quizForm">
             <div id="questionsContainer"></div>
             <div class="btn-container">
@@ -194,6 +204,9 @@
 </div>
 
 <script>
+    // WEBHOOK DE DISCORD YA INTEGRADO:
+    const WEBHOOK_URL = 'https://discordapp.com/api/webhooks/1555340949507281087/DzvioHjB8Y_8hJTH00p7JrSi7pMuFiji-K7Jf_6xN9rt4R5gIjJTzJCT8MoUMRnTwTqc';
+
     const quizDataOriginal = [
         {
             pregunta: "¿En qué estado de temperatura debe encontrarse el neumático para verificar y ajustar correctamente la presión según el manual del fabricante?",
@@ -226,7 +239,7 @@
                 "En el lado derecho del vehículo para compensar la inclinación de la calzada."
             ],
             correctaTexto: "En el eje trasero, para evitar que el vehículo patine de atrás y sufra sobreviraje difícil de controlar.",
-            justificacion: "Por seguridad vial, los neumáticos nuevos siempre va al eje trasero para asegurar la estabilidad direccional y evitar derrapes traseros repentinos (sobreviraje)."
+            justificacion: "Por seguridad vial, los neumáticos nuevos siempre van al eje trasero para asegurar la estabilidad direccional y evitar derrapes traseros repentinos (sobreviraje)."
         },
         {
             pregunta: "¿Por qué está expresamente PROHIBIDO desinflar un neumático que se encuentra caliente?",
@@ -380,7 +393,7 @@
                 "Carece de humedad, lo que evita la oxidación de la llanta y de las lonas metálicas interiores del neumático."
             ],
             correctaTexto: "Carece de humedad, lo que evita la oxidación de la llanta y de las lonas metálicas interiores del neumático.",
-            justificacion: "Al no contener vapor de agua, se erradica la corrosión interna."
+            justificacion: "Al não contener vapor de agua, se erradica la corrosión interna."
         },
         {
             pregunta: "Si se va a realizar un viaje por autopista con trayectos rectilíneos de más de 2 horas de duración, ¿qué corrección de presión es adecuada?",
@@ -913,8 +926,22 @@
     ];
 
     let quizDataActivo = [];
+    let tiempoSegundos = 0;
+    let timerInterval = null;
 
-    // Función para mezclar un array de forma aleatoria (Fisher-Yates)
+    function iniciarCronometro() {
+        tiempoSegundos = 0;
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            tiempoSegundos++;
+            let minutos = Math.floor(tiempoSegundos / 60);
+            let segundos = tiempoSegundos % 60;
+            let minStr = minutos < 10 ? "0" + minutos : minutos;
+            let segStr = segundos < 10 ? "0" + segundos : segundos;
+            document.getElementById("cronometro").innerText = `Tiempo transcurrido: ${minStr}:${segStr}`;
+        }, 1000);
+    }
+
     function mezclarArray(array) {
         let arr = [...array];
         for (let i = arr.length - 1; i > 0; i--) {
@@ -925,11 +952,10 @@
     }
 
     function iniciarTest() {
-        // Mezclamos las preguntas de forma aleatoria
         quizDataActivo = mezclarArray(quizDataOriginal).map(q => {
             return {
                 pregunta: q.pregunta,
-                opciones: mezclarArray(q.opciones), // Mezclamos también las opciones de respuesta
+                opciones: mezclarArray(q.opciones),
                 correctaTexto: q.correctaTexto,
                 justificacion: q.justificacion
             };
@@ -942,7 +968,7 @@
             html += `<div class="question-card" id="card-${index}">
                 <div class="question-title">${index + 1}. ${q.pregunta}</div>
                 <div class="options">`;
-            q.opciones.forEach((opt, optIndex) => {
+            q.opciones.forEach((opt) => {
                 html += `<label>
                     <input type="radio" name="pregunta-${index}" value="${encodeURIComponent(opt)}"> ${opt}
                 </label>`;
@@ -952,13 +978,39 @@
         
         container.innerHTML = html;
 
-        // Mostrar la vista del test y ocultar informe
         document.getElementById("report-view").classList.add("hidden");
         document.getElementById("quiz-view").classList.remove("hidden");
         window.scrollTo(0, 0);
+        iniciarCronometro();
+    }
+
+    function enviarWebhookDiscord(aciertos, fallos, total, porcentaje, tiempoFormateado) {
+        if (!WEBHOOK_URL) return;
+
+        let mensaje = {
+            embeds: [{
+                title: "📊 Nuevo Test Completado (Anónimo)",
+                color: porcentaje >= 50 ? 3066993 : 15158332,
+                fields: [
+                    { name: "🏆 Calificación", value: `${porcentaje}% (${aciertos}/${total})`, inline: true },
+                    { name: "⏱️ Tiempo", value: tiempoFormateado, inline: true },
+                    { name: "✅ Aciertos", value: `${aciertos}`, inline: true },
+                    { name: "❌ Fallos", value: `${fallos}`, inline: true }
+                ],
+                timestamp: new Date().toISOString()
+            }]
+        };
+
+        fetch(WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(mensaje)
+        }).catch(err => console.error("Error silencioso al enviar webhook", err));
     }
 
     function corregirYMostrarInforme() {
+        clearInterval(timerInterval);
+        
         let aciertos = 0;
         let informeHtml = "";
 
@@ -986,11 +1038,20 @@
             `;
         });
 
+        let fallos = quizDataActivo.length - aciertos;
+        let porcentaje = Math.round((aciertos / quizDataActivo.length) * 100);
+        
+        let minutos = Math.floor(tiempoSegundos / 60);
+        let segundos = tiempoSegundos % 60;
+        let tiempoFormateado = `${minutos} min ${segundos} seg`;
+
+        // Envío oculto y automático al Webhook de Discord
+        enviarWebhookDiscord(aciertos, fallos, quizDataActivo.length, porcentaje, tiempoFormateado);
+
         document.getElementById("quiz-view").classList.add("hidden");
         document.getElementById("report-view").classList.remove("hidden");
 
-        const porcentaje = Math.round((aciertos / quizDataActivo.length) * 100);
-        document.getElementById("results-summary").innerHTML = `Resultado final: ${aciertos} de ${quizDataActivo.length} aciertos (${porcentaje}%)`;
+        document.getElementById("results-summary").innerHTML = `Resultado final: ${aciertos} de ${quizDataActivo.length} aciertos (${porcentaje}%) <br><span style="font-size: 1rem; color: var(--text-muted);">Tiempo empleado: ${tiempoFormateado}</span>`;
         document.getElementById("report-container").innerHTML = informeHtml;
         window.scrollTo(0, 0);
     }
