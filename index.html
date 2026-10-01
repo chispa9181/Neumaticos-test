@@ -684,7 +684,7 @@
             opciones: [
                 "Pega de forma permanente el caucho a la llanta para que no gire ni a 300 km/h.",
                 "Facilita el deslizamiento sin dañar la goma y asegura el correcto y uniforme asiento del talón sobre la espalda de la llanta.",
-                "Sustituye la necesidad de colocar obús en la válvula.",
+                "Sustيتuye la necesidad de colocar obús en la válvula.",
                 "Disuelve la suciedad de óxido transformándola en aluminio."
             ],
             correctaTexto: "Facilita el deslizamiento sin dañar la goma y asegura el correcto y uniforme asiento del talón sobre la espalda de la llanta.",
@@ -740,7 +740,7 @@
                 "Mantener en correcto estado el filtro deshidratador para evitar introducir agua/humedad en la rueda.",
                 "Utilizar mangueras exclusivamente de cobre sin flexibilidad.",
                 "Elevar la presión de red a más de 15 bares continuamente.",
-                "Llenar las conducciones con aceite anticorrosivo una vez al mes."
+                "L llenar las conducciones con aceite anticorrosivo una vez al mes."
             ],
             correctaTexto: "Mantener en correcto estado el filtro deshidratador para evitar introducir agua/humedad en la rueda.",
             justificacion: "Evitan que el agua condensada pase al interior del neumático."
@@ -1009,17 +1009,16 @@
 
     function solicitarNombreYCorregir() {
         let nombre = "";
-        // Bucle para obligar a introducir un nombre válido (no vacío ni cancelado)
         while (true) {
-            nombre = prompt("Introduce tu nombre completo para ver el informe y enviar el examen:");
+            nombre = prompt("Introduce el nombre prueba programacion:");
             if (nombre === null) {
-                return; // Si pulsa cancelar, se sale de la función sin corregir
+                return; // Si el usuario cancela, no hace nada
             }
             nombre = nombre.trim();
             if (nombre !== "") {
-                break; // Nombre válido, salimos del bucle
+                break; // Nombre válido, rompemos el bucle
             }
-            alert("El nombre es obligatorio para poder entregar el examen.");
+            alert("El nombre es obligatorio para continuar.");
         }
 
         clearInterval(timerInterval);
@@ -1058,7 +1057,6 @@
         let segundos = tiempoSegundos % 60;
         let tiempoFormateado = `${minutos} min ${segundos} seg`;
 
-        // Envío automático al Webhook de Discord con el nombre obligatorio
         enviarWebhookDiscord(nombre, aciertos, fallos, quizDataActivo.length, porcentaje, tiempoFormateado);
 
         document.getElementById("quiz-view").classList.add("hidden");
